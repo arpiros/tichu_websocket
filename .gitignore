@@ -1,0 +1,6 @@
+/.idea
+/pkg
+/src/tichu/vendor
+/src/tichu/tichu_server/logs
+
+*.iml
