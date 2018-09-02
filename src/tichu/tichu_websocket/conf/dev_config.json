@@ -1,0 +1,13 @@
+{
+  "mode": "debug",
+  "mode_strings": [
+    "debug",
+    "test",
+    "release"
+  ],
+
+  "http_addr": ":1015",
+
+  "log_file": "./logs/dev_log.log",
+  "log_level": "info"
+}
