@@ -3,9 +3,10 @@ package models
 import (
 	"github.com/gorilla/websocket"
 	"github.com/Sirupsen/logrus"
+	"errors"
 )
 
-var AllUserMap map[*websocket.Conn]User = make(map[*websocket.Conn]User)
+var UserList = make(map[*websocket.Conn]*User)
 
 const (
 	UserState_None = iota
@@ -20,18 +21,39 @@ type User struct {
 }
 
 func AddUser(ws *websocket.Conn) {
-	if _, ok := AllUserMap[ws]; ok {
+	if _, ok := UserList[ws]; ok {
 		return
 	}
 
-	AllUserMap[ws] = User{
+	UserList[ws] = &User{
 		RoomCode: "",
 		State: UserState_None,
 	}
 
-	logrus.Infof("Add User, Total User : %d", len(AllUserMap))
+	logrus.Infof("Add User, Total User : %d", len(UserList))
 }
 
 func DelUser(ws *websocket.Conn) {
-	delete(AllUserMap, ws)
+	delete(UserList, ws)
 }
+
+func GetUser(ws *websocket.Conn) (*User, error) {
+	user, ok := UserList[ws]
+	if !ok {
+		return nil, errors.New("Not Found User")
+	}
+
+	return user, nil
+}
+//
+//func JoinRoom(ws *websocket.Conn, roomCode string) error {
+//	user, ok := UserList[ws]
+//	if !ok {
+//		return errors.New("Not Found User")
+//	}
+//
+//	user.RoomCode = roomCode
+//	UserList[ws] = user
+//
+//	return nil
+//}

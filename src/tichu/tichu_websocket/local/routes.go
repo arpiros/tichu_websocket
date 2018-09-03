@@ -14,14 +14,14 @@ import (
 var upgrader = websocket.Upgrader{} // use default options
 
 func StartRouter() {
-	http.HandleFunc("/", ProtocolProcess)
+	http.HandleFunc("/", PreProtocolProcess)
 	err := http.ListenAndServe(viper.GetString("http_addr"), nil)
 	if err != nil {
 		logrus.Fatal("ListenAndServe: ", err)
 	}
 }
 
-func ProtocolProcess(w http.ResponseWriter, r *http.Request) {
+func PreProtocolProcess(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -34,7 +34,7 @@ func ProtocolProcess(w http.ResponseWriter, r *http.Request) {
 		_, message, err := ws.ReadMessage()
 		if err != nil {
 			logrus.Println("ReadMessage Error : ", err)
-			models.DelUser(ws)
+			LogOut(ws)
 			break
 		}
 
@@ -42,19 +42,33 @@ func ProtocolProcess(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(message, &base)
 		if err != nil {
 			logrus.Println("Unmarshal Error : ", err)
-			models.DelUser(ws)
+			LogOut(ws)
 			break
 		}
 
 		models.AddUser(ws)
 
-		switch base.ProtocolType {
-		case protocol.CREATE_ROOM:
-			controllers.CreateRoom(ws, message)
-		case protocol.JOIN:
-			controllers.JoinRoom(ws, message)
-		default:
-			logrus.Warnf("Not Found Protocol : %d", base.ProtocolType)
-		}
+		ProtocolProcess(base, ws, message)
 	}
+}
+
+func ProtocolProcess(base protocol.Base, ws *websocket.Conn, message []byte) {
+	switch base.ProtocolType {
+	case protocol.CREATE_ROOM:
+		controllers.CreateRoom(ws, message)
+	case protocol.JOIN:
+		controllers.JoinRoom(ws, message)
+	default:
+		logrus.Warnf("Not Found Protocol : %d", base.ProtocolType)
+	}
+}
+
+func LogOut(ws *websocket.Conn) {
+	user, err := models.GetUser(ws)
+	if err != nil {
+
+	}
+
+	models.LeaveRoom(ws, user.RoomCode)
+	models.DelUser(ws)
 }

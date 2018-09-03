@@ -8,8 +8,8 @@ type CreateRoomReq struct {
 	Base
 }
 
-type JoinReq struct {
+type JoinRoomReq struct {
 	Base
 
-	RoomNumber int
+	RoomCode string
 }
