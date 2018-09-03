@@ -4,11 +4,11 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"github.com/gin-gonic/gin"
-	log "github.com/Sirupsen/logrus"
 	"io"
 	"os"
 	"os/signal"
 	"syscall"
+	"github.com/Sirupsen/logrus"
 )
 
 var initializedEngine = false
@@ -73,19 +73,19 @@ func InitConfig(path string) {
 		l.MaxAge = 1
 		l.MaxSize = 10
 		l.MaxBackups = 3
-		log.SetLevel(log.DebugLevel)
-		log.SetOutput(io.MultiWriter(l, os.Stdout))
+		logrus.SetLevel(logrus.DebugLevel)
+		logrus.SetOutput(io.MultiWriter(l, os.Stdout))
 
 	} else {
-		log.SetLevel(log.InfoLevel)
-		log.SetOutput(l)
+		logrus.SetLevel(logrus.InfoLevel)
+		logrus.SetOutput(l)
 	}
 	if viper.InConfig("log_level") {
 		switch viper.GetString("log_level") {
-		case "debug" : log.SetLevel(log.DebugLevel)
-		case "info" : log.SetLevel(log.InfoLevel)
-		case "warn" : log.SetLevel(log.WarnLevel)
-		case "error": log.SetLevel(log.ErrorLevel)
+		case "debug" : logrus.SetLevel(logrus.DebugLevel)
+		case "info" : logrus.SetLevel(logrus.InfoLevel)
+		case "warn" : logrus.SetLevel(logrus.WarnLevel)
+		case "error": logrus.SetLevel(logrus.ErrorLevel)
 		}
 	}
 
@@ -99,14 +99,14 @@ func InitConfig(path string) {
 		}
 	}()
 
-	timeStampFormat := new(log.TextFormatter)
+	timeStampFormat := new(logrus.TextFormatter)
 	timeStampFormat.TimestampFormat = "2006-01-02 15:04:05"
 	timeStampFormat.FullTimestamp = true
 	timeStampFormat.DisableColors = false
 	timeStampFormat.ForceColors = true
-	log.SetFormatter(timeStampFormat)
+	logrus.SetFormatter(timeStampFormat)
 
 	configuredEngine = true
-	log.Info("-----------------------------------------------------------")
-	log.Infof("Load Config: %s (%s) log_level:%v ", configName, viper.GetString("mode"), viper.GetString("log_level") )
+	logrus.Info("-----------------------------------------------------------")
+	logrus.Infof("Load Config: %s (%s) log_level:%v ", configName, viper.GetString("mode"), viper.GetString("log_level") )
 }

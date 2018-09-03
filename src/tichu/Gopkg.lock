@@ -35,6 +35,12 @@
   revision = "5a0f697c9ed9d68fef0116532c6e05cfeae00e55"
 
 [[projects]]
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [
@@ -160,6 +166,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ffa43d8597a5328154828d4fb23d2a907273a371bb61a024395498012cbdc2c1"
+  inputs-digest = "7e22e6b5b974c39f22ba5c6a61eb954e682693110b8167f96022921e22832307"
   solver-name = "gps-cdcl"
   solver-version = 1

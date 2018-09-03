@@ -3,51 +3,58 @@ package local
 import (
 	"net/http"
 	"github.com/spf13/viper"
-	"log"
 	"github.com/gorilla/websocket"
 	"tichu/tichu_websocket/protocol"
 	"encoding/json"
+	"tichu/tichu_websocket/models"
 	"tichu/tichu_websocket/controllers"
+	"github.com/Sirupsen/logrus"
 )
 
 var upgrader = websocket.Upgrader{} // use default options
 
 func StartRouter() {
 	http.HandleFunc("/", ProtocolProcess)
-	http.ListenAndServe(viper.GetString("http_addr"), nil)
+	err := http.ListenAndServe(viper.GetString("http_addr"), nil)
+	if err != nil {
+		logrus.Fatal("ListenAndServe: ", err)
+	}
 }
 
 func ProtocolProcess(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print("upgrade:", err)
+		logrus.Print("upgrade:", err)
 		return
 	}
 
-	defer c.Close()
+	defer ws.Close()
 	for {
-		_, message, err := c.ReadMessage()
+		_, message, err := ws.ReadMessage()
 		if err != nil {
-			log.Println("ReadMessage Error : ", err)
+			logrus.Println("ReadMessage Error : ", err)
+			models.DelUser(ws)
 			break
 		}
 
 		var base protocol.Base
 		err = json.Unmarshal(message, &base)
 		if err != nil {
-			log.Println("Unmarshal Error : ", err)
+			logrus.Println("Unmarshal Error : ", err)
+			models.DelUser(ws)
 			break
 		}
 
+		models.AddUser(ws)
+
 		switch base.ProtocolType {
 		case protocol.CREATE_ROOM:
-			var createRoom protocol.CreateRoom
-			err = json.Unmarshal(message, &createRoom)
-			controllers.CreateRoom(createRoom, c)
+			controllers.CreateRoom(ws, message)
 		case protocol.JOIN:
-			var join protocol.Join
-			err = json.Unmarshal(message, &join)
-			controllers.Join(join, c)
+			controllers.JoinRoom(ws, message)
+		default:
+			logrus.Warnf("Not Found Protocol : %d", base.ProtocolType)
 		}
 	}
 }

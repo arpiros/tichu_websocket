@@ -6,7 +6,7 @@
     "release"
   ],
 
-  "http_addr": ":1015",
+  "http_addr": ":5555",
 
   "log_file": "./logs/dev_log.log",
   "log_level": "info"
