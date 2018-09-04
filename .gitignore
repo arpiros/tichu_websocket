@@ -2,5 +2,6 @@
 /pkg
 /src/tichu/vendor
 /src/tichu/tichu_server/logs
+/src/tichu/tichu_websocket/logs
 
 *.iml
