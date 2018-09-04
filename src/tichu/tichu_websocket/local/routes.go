@@ -38,7 +38,7 @@ func PreProtocolProcess(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		var base protocol.Base
+		var base protocol.RequestBase
 		err = json.Unmarshal(message, &base)
 		if err != nil {
 			logrus.Println("Unmarshal Error : ", err)
@@ -52,12 +52,14 @@ func PreProtocolProcess(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ProtocolProcess(base protocol.Base, ws *websocket.Conn, message []byte) {
+func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []byte) {
 	switch base.ProtocolType {
 	case protocol.CREATE_ROOM:
 		controllers.CreateRoom(ws, message)
-	case protocol.JOIN:
+	case protocol.JOIN_ROOM:
 		controllers.JoinRoom(ws, message)
+	case protocol.MOVE_TURN:
+		controllers.MoveTurn(ws, message)
 	default:
 		logrus.Warnf("Not Found Protocol : %d", base.ProtocolType)
 	}

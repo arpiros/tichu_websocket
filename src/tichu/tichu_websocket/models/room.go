@@ -4,12 +4,14 @@ import (
 	"github.com/gorilla/websocket"
 	"tichu/tichu_websocket/util"
 	"github.com/Sirupsen/logrus"
+	"errors"
 )
 
 const RoomCodeLength = 4
+const RoomMemeberLimit = 4
 
 //TODO Mutex 처리
-var RoomList = make(map[string]Room)
+var RoomList = make(map[string]*Room)
 
 type Room struct {
 	RoomCode  string
@@ -17,27 +19,8 @@ type Room struct {
 	Broadcast chan InGameBroadCast
 }
 
-//func (t *Room) rLock() {
-//	t.mutex.RLock()
-//}
-//
-//func (t *Room) rUnlock() {
-//	t.mutex.RUnlock()
-//}
-//
-//func (t *Room) write_acquire() {
-//	t.mutex.Lock()
-//}
-//
-//func (t *Room) write_release() {
-//	t.mutex.Unlock()
-//}
-//
-////var defRoom *Room = &Room{
-////	mutex: &sync.RWMutex{},
-////}
-
 type InGameBroadCast struct {
+	message string
 }
 
 func CreateRoom(ws *websocket.Conn) *Room {
@@ -45,7 +28,7 @@ func CreateRoom(ws *websocket.Conn) *Room {
 	for i := 0; i < 5; i++ {
 		roomCode := util.GenerateRandomString(RoomCodeLength)
 		if _, ok := RoomList[roomCode]; !ok {
-			room := Room{
+			room := &Room{
 				RoomCode:  roomCode,
 				Clients:   make(map[*websocket.Conn]bool),
 				Broadcast: make(chan InGameBroadCast),
@@ -54,25 +37,38 @@ func CreateRoom(ws *websocket.Conn) *Room {
 			room.Clients[ws] = true
 
 			RoomList[roomCode] = room
-			return &room
+			return room
 		}
 	}
 	return nil
 }
 
 func JoinRoom(ws *websocket.Conn, roomCode string) {
-	//TODO user State Check
+	// TODO user State Check
 
 	if _, ok := RoomList[roomCode]; !ok {
-		//TODO error
+		// TODO error
 		return
 	}
 
 	room := RoomList[roomCode]
+	if len(room.Clients) >= RoomMemeberLimit {
+		// TODO room member full error
+		return
+	}
 
 	room.Clients[ws] = true
 
 	logrus.Infof("Join Room")
+}
+
+func GetRoom(roomCode string) (*Room, error) {
+	room, ok := RoomList[roomCode]
+	if !ok {
+		return nil, errors.New("Not Found User")
+	}
+
+	return room, nil
 }
 
 func LeaveRoom(ws *websocket.Conn, roomCode string) {

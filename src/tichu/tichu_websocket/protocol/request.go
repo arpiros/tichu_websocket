@@ -1,15 +1,21 @@
 package protocol
 
-type Base struct {
+type RequestBase struct {
 	ProtocolType int `json:"pt"`
 }
 
 type CreateRoomReq struct {
-	Base
+	RequestBase
 }
 
 type JoinRoomReq struct {
-	Base
+	RequestBase
 
 	RoomCode string
+}
+
+type MoveTurnReq struct {
+	RequestBase
+
+	Message string `json:"msg"`
 }

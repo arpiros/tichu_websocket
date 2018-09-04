@@ -10,7 +10,7 @@ var UserList = make(map[*websocket.Conn]*User)
 
 const (
 	UserState_None = iota
-	UserState_Wait
+	UserState_InRoom
 	UserState_Playing
 )
 

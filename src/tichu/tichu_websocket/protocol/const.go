@@ -2,5 +2,6 @@ package protocol
 
 const (
 	CREATE_ROOM = iota
-	JOIN
+	JOIN_ROOM
+	MOVE_TURN
 )
