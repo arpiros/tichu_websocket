@@ -58,11 +58,15 @@ func JoinRoom(ws *websocket.Conn, message []byte) {
 		return
 	}
 
-	models.JoinRoom(ws, joinRoomReq.RoomCode)
+	room := models.JoinRoom(ws, joinRoomReq.RoomCode)
 	user.RoomCode = joinRoomReq.RoomCode
 	user.State = models.UserState_InRoom
 
-	ws.WriteJSON(&protocol.JoinRoomResp{
-		User: *user,
-	})
+	if len(room.Clients) == models.RoomMemberLimit {
+		StartGame(room)
+	} else {
+		ws.WriteJSON(&protocol.JoinRoomResp{
+			User: *user,
+		})
+	}
 }

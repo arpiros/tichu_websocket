@@ -3,24 +3,41 @@ package models
 import (
 	"github.com/gorilla/websocket"
 	"tichu/tichu_websocket/util"
-	"github.com/Sirupsen/logrus"
 	"errors"
+	"github.com/Sirupsen/logrus"
 )
 
 const RoomCodeLength = 4
-const RoomMemeberLimit = 4
+const RoomMemberLimit = 4
+const TeamCount = 2
 
 //TODO Mutex 처리
 var RoomList = make(map[string]*Room)
 
 type Room struct {
-	RoomCode  string
-	Clients   map[*websocket.Conn]bool
-	Broadcast chan InGameBroadCast
+	RoomCode string
+	Clients  map[*websocket.Conn]bool
+	Players  []*Player
+	Teams    []*Team
+	CardDeck []*Card
 }
 
-type InGameBroadCast struct {
-	message string
+type Player struct {
+	PlayerIndex int
+	TeamNumber  int
+	CardList    []*Card
+}
+
+type Team struct {
+	TeamNumber int
+	Player     []*Player
+	TotalScore int
+}
+
+func NewTeam(teamNumber int) *Team {
+	return &Team{
+		TeamNumber: teamNumber,
+	}
 }
 
 func CreateRoom(ws *websocket.Conn) *Room {
@@ -29,37 +46,51 @@ func CreateRoom(ws *websocket.Conn) *Room {
 		roomCode := util.GenerateRandomString(RoomCodeLength)
 		if _, ok := RoomList[roomCode]; !ok {
 			room := &Room{
-				RoomCode:  roomCode,
-				Clients:   make(map[*websocket.Conn]bool),
-				Broadcast: make(chan InGameBroadCast),
+				RoomCode: roomCode,
+				Clients:  make(map[*websocket.Conn]bool),
+				Teams:    make([]*Team, TeamCount),
 			}
 
-			room.Clients[ws] = true
+			for key, _ := range room.Teams {
+				room.Teams[key] = NewTeam(key)
+			}
 
 			RoomList[roomCode] = room
-			return room
+			return JoinRoom(ws, roomCode)
 		}
 	}
 	return nil
 }
 
-func JoinRoom(ws *websocket.Conn, roomCode string) {
+func JoinRoom(ws *websocket.Conn, roomCode string) *Room {
 	// TODO user State Check
 
 	if _, ok := RoomList[roomCode]; !ok {
 		// TODO error
-		return
+		return nil
 	}
 
 	room := RoomList[roomCode]
-	if len(room.Clients) >= RoomMemeberLimit {
+	if len(room.Clients) >= RoomMemberLimit {
 		// TODO room member full error
-		return
+		return nil
 	}
 
 	room.Clients[ws] = true
 
+	newPlayer := &Player{
+		PlayerIndex: len(room.Clients),
+		TeamNumber:  len(room.Clients) % TeamCount,
+	}
+
+	room.Players = append(room.Players, newPlayer)
+	team := room.Teams[newPlayer.TeamNumber]
+	team.TeamNumber = newPlayer.TeamNumber
+	team.Player = append(team.Player, newPlayer)
+
 	logrus.Infof("Join Room")
+
+	return room
 }
 
 func GetRoom(roomCode string) (*Room, error) {

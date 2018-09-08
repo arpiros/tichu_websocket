@@ -40,3 +40,7 @@ func MoveTurn(ws *websocket.Conn, message []byte) {
 		})
 	}
 }
+
+func StartGame(room *models.Room) {
+	//TODO Card distribute
+}
