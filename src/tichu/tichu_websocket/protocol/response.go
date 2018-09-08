@@ -11,7 +11,7 @@ type JoinRoomResp struct {
 }
 
 type RoomInitResp struct {
-	Team *models.Team
+	Team   *models.Team
 	Player *models.Player
 }
 
@@ -21,6 +21,11 @@ type CallLargeTichuResp struct {
 
 type DistributeAllCardResp struct {
 	Player *models.Player
+}
+
+type StartGameResp struct {
+	Player              *models.Player
+	CurrentActivePlayer int
 }
 
 type MoveTurnResp struct {

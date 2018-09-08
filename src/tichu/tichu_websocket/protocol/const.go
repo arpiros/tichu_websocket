@@ -4,5 +4,6 @@ const (
 	CreateRoom = iota
 	JoinRoom
 	CallLargeTichu
+	ChangeCard
 	MoveTurn
 )

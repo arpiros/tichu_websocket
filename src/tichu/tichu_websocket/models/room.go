@@ -22,20 +22,25 @@ var RoomList = make(map[string]*Room)
 
 type Room struct {
 	RoomCode string
-	Clients  map[*websocket.Conn]*Player
+
+	Clients  map[*websocket.Conn]*Player `json:"-"`
 	Players  []*Player
 	Teams    []*Team
-	CardDeck []*Card
+	CardDeck []*Card                     `json:"-"`
 
 	CallTichu map[int]int
+
+	CurrentActivePlayer int
 }
 
 type Player struct {
-	PlayerIndex int
-	TeamNumber  int
-	CardList    []*Card
-	IsConnect   bool
-	IsMyTurn    bool
+	Index      int
+	TeamNumber int
+	CardList   []*Card
+	IsConnect  bool
+	IsMyTurn   bool
+
+	GainCard []*Card `json:"-"`
 }
 
 type Team struct {
@@ -60,6 +65,7 @@ func CreateRoom(ws *websocket.Conn) *Room {
 				Clients:   make(map[*websocket.Conn]*Player),
 				Teams:     make([]*Team, TeamCount),
 				CallTichu: make(map[int]int),
+				CurrentActivePlayer: -1, // 아직 아무도 게임 진행중이지 않음
 			}
 
 			for key := range room.Teams {
@@ -88,9 +94,9 @@ func JoinRoom(ws *websocket.Conn, roomCode string) *Room {
 	}
 
 	newPlayer := &Player{
-		PlayerIndex: len(room.Players) + 1,
-		TeamNumber:  len(room.Players) % TeamCount,
-		IsConnect:   true,
+		Index:      len(room.Players) + 1,
+		TeamNumber: len(room.Players) % TeamCount,
+		IsConnect:  true,
 	}
 
 	room.Clients[ws] = newPlayer

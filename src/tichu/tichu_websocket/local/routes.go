@@ -60,6 +60,8 @@ func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []by
 		controllers.JoinRoom(ws, message)
 	case protocol.CallLargeTichu:
 		controllers.CallLargeTichu(ws, message)
+	case protocol.ChangeCard:
+		controllers.ChangeCard(ws, message)
 	case protocol.MoveTurn:
 		controllers.MoveTurn(ws, message)
 	default:

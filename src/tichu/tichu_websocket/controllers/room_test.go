@@ -31,9 +31,9 @@ func TestDistributeCard(t *testing.T) {
 
 	for i := 0; i < models.RoomMemberLimit; i++ {
 		newPlayer := &models.Player{
-			PlayerIndex: len(room.Players) + 1,
-			TeamNumber:  len(room.Players) % models.TeamCount,
-			IsConnect:   true,
+			Index:      len(room.Players) + 1,
+			TeamNumber: len(room.Players) % models.TeamCount,
+			IsConnect:  true,
 		}
 
 		room.Players = append(room.Players, newPlayer)

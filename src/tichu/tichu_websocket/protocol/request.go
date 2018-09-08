@@ -20,6 +20,12 @@ type CallLargeTichuReq struct {
 	IsCall bool
 }
 
+type ChangeCardReq struct {
+	RequestBase
+
+	Change map[int]int
+}
+
 type MoveTurnReq struct {
 	RequestBase
 
