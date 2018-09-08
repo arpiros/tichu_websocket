@@ -10,11 +10,19 @@ type JoinRoomResp struct {
 	UserCount int
 }
 
-type MoveTurnResp struct {
-	Message string
-}
-
-type StartGameResp struct {
+type RoomInitResp struct {
 	Team *models.Team
 	Player *models.Player
+}
+
+type CallLargeTichuResp struct {
+	CallTichu map[int]int
+}
+
+type DistributeAllCardResp struct {
+	Player *models.Player
+}
+
+type MoveTurnResp struct {
+	Message string
 }

@@ -14,6 +14,12 @@ type JoinRoomReq struct {
 	RoomCode string
 }
 
+type CallLargeTichuReq struct {
+	RequestBase
+
+	IsCall bool
+}
+
 type MoveTurnReq struct {
 	RequestBase
 

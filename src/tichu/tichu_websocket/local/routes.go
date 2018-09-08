@@ -54,11 +54,13 @@ func PreProtocolProcess(w http.ResponseWriter, r *http.Request) {
 
 func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []byte) {
 	switch base.ProtocolType {
-	case protocol.CREATE_ROOM:
+	case protocol.CreateRoom:
 		controllers.CreateRoom(ws, message)
-	case protocol.JOIN_ROOM:
+	case protocol.JoinRoom:
 		controllers.JoinRoom(ws, message)
-	case protocol.MOVE_TURN:
+	case protocol.CallLargeTichu:
+		controllers.CallLargeTichu(ws, message)
+	case protocol.MoveTurn:
 		controllers.MoveTurn(ws, message)
 	default:
 		logrus.Warnf("Not Found Protocol : %d", base.ProtocolType)

@@ -21,9 +21,9 @@ const (
 )
 
 const (
-	StartCardNumber = 2
+	StartCardNumber = 1
 	EndCardNumber   = 13
-	TotalCardCount  = 52
+	TotalCardCount  = 56
 )
 
 type Card struct {

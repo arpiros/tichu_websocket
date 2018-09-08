@@ -11,6 +11,12 @@ const RoomCodeLength = 4
 const RoomMemberLimit = 4
 const TeamCount = 2
 
+const (
+	CallTichuNone  = iota
+	CallTichuSmail
+	CallTichuLarge
+)
+
 //TODO Mutex 처리
 var RoomList = make(map[string]*Room)
 
@@ -20,6 +26,8 @@ type Room struct {
 	Players  []*Player
 	Teams    []*Team
 	CardDeck []*Card
+
+	CallTichu map[int]int
 }
 
 type Player struct {
@@ -27,6 +35,7 @@ type Player struct {
 	TeamNumber  int
 	CardList    []*Card
 	IsConnect   bool
+	IsMyTurn    bool
 }
 
 type Team struct {
@@ -47,12 +56,13 @@ func CreateRoom(ws *websocket.Conn) *Room {
 		roomCode := util.GenerateRandomString(RoomCodeLength)
 		if _, ok := RoomList[roomCode]; !ok {
 			room := &Room{
-				RoomCode: roomCode,
-				Clients:  make(map[*websocket.Conn]*Player),
-				Teams: make([]*Team, TeamCount),
+				RoomCode:  roomCode,
+				Clients:   make(map[*websocket.Conn]*Player),
+				Teams:     make([]*Team, TeamCount),
+				CallTichu: make(map[int]int),
 			}
 
-			for key, _ := range room.Teams {
+			for key := range room.Teams {
 				room.Teams[key] = NewTeam(key)
 			}
 
