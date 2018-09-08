@@ -16,7 +16,7 @@ var RoomList = make(map[string]*Room)
 
 type Room struct {
 	RoomCode string
-	Clients  map[*websocket.Conn]bool
+	Clients  map[*websocket.Conn]*Player
 	Players  []*Player
 	Teams    []*Team
 	CardDeck []*Card
@@ -26,6 +26,7 @@ type Player struct {
 	PlayerIndex int
 	TeamNumber  int
 	CardList    []*Card
+	IsConnect   bool
 }
 
 type Team struct {
@@ -47,8 +48,8 @@ func CreateRoom(ws *websocket.Conn) *Room {
 		if _, ok := RoomList[roomCode]; !ok {
 			room := &Room{
 				RoomCode: roomCode,
-				Clients:  make(map[*websocket.Conn]bool),
-				Teams:    make([]*Team, TeamCount),
+				Clients:  make(map[*websocket.Conn]*Player),
+				Teams: make([]*Team, TeamCount),
 			}
 
 			for key, _ := range room.Teams {
@@ -71,18 +72,18 @@ func JoinRoom(ws *websocket.Conn, roomCode string) *Room {
 	}
 
 	room := RoomList[roomCode]
-	if len(room.Clients) >= RoomMemberLimit {
+	if len(room.Players) >= RoomMemberLimit {
 		// TODO room member full error
 		return nil
 	}
 
-	room.Clients[ws] = true
-
 	newPlayer := &Player{
-		PlayerIndex: len(room.Clients),
-		TeamNumber:  len(room.Clients) % TeamCount,
+		PlayerIndex: len(room.Players) + 1,
+		TeamNumber:  len(room.Players) % TeamCount,
+		IsConnect:   true,
 	}
 
+	room.Clients[ws] = newPlayer
 	room.Players = append(room.Players, newPlayer)
 	team := room.Teams[newPlayer.TeamNumber]
 	team.TeamNumber = newPlayer.TeamNumber
@@ -110,10 +111,10 @@ func LeaveRoom(ws *websocket.Conn, roomCode string) {
 
 	room := RoomList[roomCode]
 
-	room.Clients[ws] = false
+	room.Clients[ws].IsConnect = false
 
 	for _, value := range room.Clients {
-		if value {
+		if value.IsConnect {
 			return
 		}
 	}

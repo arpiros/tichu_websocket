@@ -1,27 +1,67 @@
 package models
 
+import "math/rand"
+
 const (
-	CardColer_None  = iota
-	CardColor_Red
-	CardColor_Blue
-	CardColor_Green
-	CardColor_Block
+	CardColerNone  = iota
+	CardColorRed
+	CardColorBlue
+	CardColorGreen
+	CardColorBlock
+	CardColorCount
 )
 
 const (
-	CardType_None    = iota
-	CardType_SPARROW
-	CardType_Dog
-	CardType_Dragon
-	CardType_Phoenix
+	CardTypeNone    = iota
+	CardTypeSparrow
+	CardTypeDog
+	CardTypeDragon
+	CardTypePhoenix
+	CardTypeCount
+)
+
+const (
+	StartCardNumber = 2
+	EndCardNumber   = 13
+	TotalCardCount  = 52
 )
 
 type Card struct {
-	Number int
-	Color  int
-	cType  int
+	Number   int
+	Color    int
+	CardType int
 }
 
 func NewCardDeck() []*Card {
-	return nil
+	var newDeck []*Card
+	for cType := 0; cType < CardTypeCount; cType++ {
+		switch cType {
+		case CardTypeNone:
+			for color := CardColorRed; color < CardColorCount; color++ {
+				for num := StartCardNumber; num < EndCardNumber+1; num++ {
+					newDeck = append(newDeck, &Card{
+						Number:   num,
+						Color:    color,
+						CardType: cType,
+					})
+				}
+			}
+		default:
+			newDeck = append(newDeck, &Card{
+				Number:   0,
+				Color:    CardColerNone,
+				CardType: cType,
+			})
+		}
+	}
+
+	shuffleCardDeck(newDeck)
+
+	return newDeck
+}
+
+func shuffleCardDeck(deck []*Card) {
+	for key := range deck {
+		deck[rand.Intn(TotalCardCount)], deck[key] = deck[key], deck[rand.Intn(TotalCardCount)]
+	}
 }

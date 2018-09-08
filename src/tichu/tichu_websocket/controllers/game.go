@@ -31,7 +31,7 @@ func MoveTurn(ws *websocket.Conn, message []byte) {
 	}
 
 	for inRoomUser, client := range room.Clients {
-		if !client {
+		if !client.IsConnect {
 			continue
 		}
 
@@ -42,5 +42,24 @@ func MoveTurn(ws *websocket.Conn, message []byte) {
 }
 
 func StartGame(room *models.Room) {
-	//TODO Card distribute
+	room.CardDeck = models.NewCardDeck()
+
+	DistributeCard(room, 8)
+	for key, value := range room.Clients {
+		key.WriteJSON(value.CardList)
+	}
+}
+
+func Pop(deck []*models.Card) (*models.Card, []*models.Card) {
+	return deck[len(deck)-1], deck[:len(deck)-1]
+}
+
+func DistributeCard(room *models.Room, cardCount int) {
+	for i := 0; i < cardCount; i++ {
+		for _, value := range room.Players {
+			var poppedCard *models.Card
+			poppedCard, room.CardDeck = Pop(room.CardDeck)
+			value.CardList = append(value.CardList, poppedCard)
+		}
+	}
 }
