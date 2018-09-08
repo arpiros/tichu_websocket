@@ -7,9 +7,14 @@ type CreateRoomResp struct {
 }
 
 type JoinRoomResp struct {
-	User models.User
+	UserCount int
 }
 
 type MoveTurnResp struct {
 	Message string
+}
+
+type StartGameResp struct {
+	Team *models.Team
+	Player *models.Player
 }

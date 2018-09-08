@@ -31,7 +31,7 @@ type Player struct {
 
 type Team struct {
 	TeamNumber int
-	Player     []*Player
+	Player     []*Player `json:"-"`
 	TotalScore int
 }
 
