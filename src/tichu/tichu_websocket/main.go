@@ -1,16 +1,16 @@
 package main
 
 import (
+	"github.com/Sirupsen/logrus"
 	"math/rand"
-	"time"
-	log "github.com/Sirupsen/logrus"
-	"tichu/tichu_websocket/system"
 	"tichu/tichu_websocket/local"
+	"tichu/tichu_websocket/system"
+	"time"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	log.Infof("Tichu Server Start")
+	logrus.Infof("Tichu Server Start")
 
 	system.InitEngine()
 
