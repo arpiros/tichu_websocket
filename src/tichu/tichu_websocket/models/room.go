@@ -1,10 +1,10 @@
 package models
 
 import (
-	"github.com/gorilla/websocket"
-	"tichu/tichu_websocket/util"
 	"errors"
 	"github.com/Sirupsen/logrus"
+	"github.com/gorilla/websocket"
+	"tichu/tichu_websocket/util"
 )
 
 const RoomCodeLength = 4
@@ -12,7 +12,7 @@ const RoomMemberLimit = 4
 const TeamCount = 2
 
 const (
-	CallTichuNone  = iota
+	CallTichuNone = iota
 	CallTichuSmail
 	CallTichuLarge
 )
@@ -26,7 +26,7 @@ type Room struct {
 	Clients  map[*websocket.Conn]*Player `json:"-"`
 	Players  []*Player
 	Teams    []*Team
-	CardDeck []*Card                     `json:"-"`
+	CardDeck []*Card `json:"-"`
 
 	CallTichu map[int]int
 
@@ -61,10 +61,10 @@ func CreateRoom(ws *websocket.Conn) *Room {
 		roomCode := util.GenerateRandomString(RoomCodeLength)
 		if _, ok := RoomList[roomCode]; !ok {
 			room := &Room{
-				RoomCode:  roomCode,
-				Clients:   make(map[*websocket.Conn]*Player),
-				Teams:     make([]*Team, TeamCount),
-				CallTichu: make(map[int]int),
+				RoomCode:            roomCode,
+				Clients:             make(map[*websocket.Conn]*Player),
+				Teams:               make([]*Team, TeamCount),
+				CallTichu:           make(map[int]int),
 				CurrentActivePlayer: -1, // 아직 아무도 게임 진행중이지 않음
 			}
 
@@ -94,7 +94,7 @@ func JoinRoom(ws *websocket.Conn, roomCode string) *Room {
 	}
 
 	newPlayer := &Player{
-		Index:      len(room.Players) + 1,
+		Index:      len(room.Players),
 		TeamNumber: len(room.Players) % TeamCount,
 		IsConnect:  true,
 	}

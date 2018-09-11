@@ -26,6 +26,16 @@ type ChangeCardReq struct {
 	Change map[int]int
 }
 
+type CallTichuReq struct {
+	RequestBase
+}
+
+type UseBoomReq struct {
+	RequestBase
+
+	Cards []int
+}
+
 type MoveTurnReq struct {
 	RequestBase
 

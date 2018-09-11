@@ -5,5 +5,7 @@ const (
 	JoinRoom
 	CallLargeTichu
 	ChangeCard
+	CallTichu
+	Boom
 	MoveTurn
 )

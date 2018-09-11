@@ -28,6 +28,10 @@ type StartGameResp struct {
 	CurrentActivePlayer int
 }
 
+type CallTichuResp struct {
+	CallTichu map[int]int
+}
+
 type MoveTurnResp struct {
 	Message string
 }

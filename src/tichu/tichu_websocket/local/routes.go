@@ -1,14 +1,14 @@
 package local
 
 import (
-	"net/http"
-	"github.com/spf13/viper"
-	"github.com/gorilla/websocket"
-	"tichu/tichu_websocket/protocol"
 	"encoding/json"
-	"tichu/tichu_websocket/models"
-	"tichu/tichu_websocket/controllers"
 	"github.com/Sirupsen/logrus"
+	"github.com/gorilla/websocket"
+	"github.com/spf13/viper"
+	"net/http"
+	"tichu/tichu_websocket/controllers"
+	"tichu/tichu_websocket/models"
+	"tichu/tichu_websocket/protocol"
 )
 
 var upgrader = websocket.Upgrader{} // use default options
@@ -62,6 +62,8 @@ func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []by
 		controllers.CallLargeTichu(ws, message)
 	case protocol.ChangeCard:
 		controllers.ChangeCard(ws, message)
+	case protocol.CallTichu:
+		controllers.CallTichu(ws, message)
 	case protocol.MoveTurn:
 		controllers.MoveTurn(ws, message)
 	default:

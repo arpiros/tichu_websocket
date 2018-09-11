@@ -1,8 +1,11 @@
 package controllers
 
 import (
-	"testing"
+	"encoding/json"
 	"math/rand"
+	"sort"
+	"testing"
+	"tichu/tichu_websocket/protocol"
 )
 
 func TestShuffleArray(t *testing.T) {
@@ -10,4 +13,33 @@ func TestShuffleArray(t *testing.T) {
 	for key, value := range list {
 		println(key, value)
 	}
+}
+
+func TestSortArray(t *testing.T) {
+	var numbers []int
+	for i := 0; i < 5; i++ {
+		numbers = append(numbers, rand.Intn(13)+1)
+	}
+
+	sort.Ints(numbers)
+
+	for _, value := range numbers {
+		println(value)
+	}
+}
+
+func TestMarshalJson(t *testing.T) {
+	req := protocol.ChangeCardReq{
+		RequestBase: protocol.RequestBase{
+			ProtocolType: protocol.ChangeCard,
+		},
+		Change: map[int]int{
+			1: 0,
+			2: 1,
+			3: 2,
+		},
+	}
+
+	bytes, _ := json.Marshal(req)
+	println(string(bytes))
 }

@@ -1,38 +1,26 @@
 package controllers
 
 import (
-	"github.com/gorilla/websocket"
-	"tichu/tichu_websocket/protocol"
 	"encoding/json"
 	"github.com/Sirupsen/logrus"
+	"github.com/gorilla/websocket"
 	"tichu/tichu_websocket/models"
+	"tichu/tichu_websocket/protocol"
 )
 
 func CallLargeTichu(ws *websocket.Conn, message []byte) {
-	var callLageTichu protocol.CallLargeTichuReq
-	err := json.Unmarshal(message, &callLageTichu)
+	var req protocol.CallLargeTichuReq
+	_, room, err := controllerInit(ws, message, &req)
 	if err != nil {
-		logrus.Println("Unmarshal Error : ", err)
+		logrus.Println("CallLargeTichu controllerInit Error : ", err)
 		models.DelUser(ws)
-		return
-	}
-
-	user, err := models.GetUser(ws)
-	if err != nil {
-		logrus.Warnf("MoveTurn GetUser Error : %v", err)
-		return
-	}
-
-	room, err := models.GetRoom(user.RoomCode)
-	if err != nil {
-		logrus.Warnf("MoveTurn GetRoom Error : %v", err)
 		return
 	}
 
 	player := room.Clients[ws]
 	room.CallTichu[player.Index] = models.CallTichuNone
 
-	if callLageTichu.IsCall {
+	if req.IsCall {
 		room.CallTichu[player.Index] = models.CallTichuLarge
 	}
 
@@ -54,44 +42,31 @@ func CallLargeTichu(ws *websocket.Conn, message []byte) {
 }
 
 func ChangeCard(ws *websocket.Conn, message []byte) {
-	var changeCardReq protocol.ChangeCardReq
-	err := json.Unmarshal(message, &changeCardReq)
+	var req protocol.ChangeCardReq
+	_, room, err := controllerInit(ws, message, &req)
 	if err != nil {
-		logrus.Println("Unmarshal Error : ", err)
+		logrus.Println("ChangeCard controllerInit Error : ", err)
 		models.DelUser(ws)
-		return
-	}
-
-	user, err := models.GetUser(ws)
-	if err != nil {
-		logrus.Warnf("MoveTurn GetUser Error : %v", err)
-		return
-	}
-
-	room, err := models.GetRoom(user.RoomCode)
-	if err != nil {
-		logrus.Warnf("MoveTurn GetRoom Error : %v", err)
 		return
 	}
 
 	player := room.Clients[ws]
 
 	changeCardPlayerCount := 0
-	if len(player.GainCard) == models.RoomMemberLimit - 1 {
+	if len(player.GainCard) == models.RoomMemberLimit-1 {
 		changeCardPlayerCount++
 	}
-	for playerIndex, cardIndex := range changeCardReq.Change {
+	for playerIndex, cardIndex := range req.Change {
 		card := player.CardList[cardIndex]
 		player.CardList = append(player.CardList[:cardIndex], player.CardList[cardIndex+1:]...)
 
 		targetPlayer := room.Players[playerIndex]
 		targetPlayer.GainCard = append(targetPlayer.GainCard, card)
 
-		if len(targetPlayer.GainCard) == models.RoomMemberLimit - 1 {
+		if len(targetPlayer.GainCard) == models.RoomMemberLimit-1 {
 			changeCardPlayerCount++
 		}
 	}
-
 
 	if changeCardPlayerCount == models.RoomMemberLimit {
 		for _, player := range room.Clients {
@@ -110,32 +85,66 @@ func ChangeCard(ws *websocket.Conn, message []byte) {
 
 		for client, player := range room.Clients {
 			client.WriteJSON(&protocol.StartGameResp{
-				Player: player,
+				Player:              player,
 				CurrentActivePlayer: room.CurrentActivePlayer,
 			})
 		}
 	}
 }
 
-func MoveTurn(ws *websocket.Conn, message []byte) {
-	var moveTurnReq protocol.MoveTurnReq
-	err := json.Unmarshal(message, &moveTurnReq)
+func CallTichu(ws *websocket.Conn, message []byte) {
+	var req protocol.CallTichuReq
+	_, room, err := controllerInit(ws, message, &req)
 	if err != nil {
-		logrus.Println("Unmarshal Error : ", err)
+		logrus.Println("CallTichu controllerInit Error : ", err)
 		models.DelUser(ws)
 		return
 	}
 
-	user, err := models.GetUser(ws)
-	if err != nil {
-		logrus.Warnf("MoveTurn GetUser Error : %v", err)
+	player := room.Clients[ws]
+	if room.CallTichu[player.Index] > models.CallTichuNone {
 		return
 	}
 
-	//TODO check user state
-	room, err := models.GetRoom(user.RoomCode)
+	room.CallTichu[player.Index] = models.CallTichuSmail
+
+	for client := range room.Clients {
+		client.WriteJSON(&protocol.CallTichuResp{
+			CallTichu: room.CallTichu,
+		})
+	}
+}
+
+func UseBoom(ws *websocket.Conn, message []byte) {
+	var req protocol.UseBoomReq
+	_, room, err := controllerInit(ws, message, &req)
 	if err != nil {
-		logrus.Warnf("MoveTurn GetRoom Error : %v", err)
+		logrus.Println("UseBoom controllerInit Error : ", err)
+		models.DelUser(ws)
+		return
+	}
+
+	player := room.Clients[ws]
+
+	var cards []models.Card
+	for _, value := range req.Cards {
+		cards = append(cards, *player.CardList[value])
+	}
+
+	if !models.IsBoom(cards) {
+		// invalid boom
+		return
+	}
+
+	// TODO send boom result
+}
+
+func MoveTurn(ws *websocket.Conn, message []byte) {
+	var req protocol.MoveTurnReq
+	_, room, err := controllerInit(ws, message, &req)
+	if err != nil {
+		logrus.Println("MoveTurn controllerInit Error : ", err)
+		models.DelUser(ws)
 		return
 	}
 
@@ -145,7 +154,26 @@ func MoveTurn(ws *websocket.Conn, message []byte) {
 		}
 
 		inRoomUser.WriteJSON(&protocol.MoveTurnResp{
-			Message: moveTurnReq.Message,
+			Message: req.Message,
 		})
 	}
+}
+
+func controllerInit(ws *websocket.Conn, message []byte, _struct interface{}) (*models.User, *models.Room, error) {
+	err := json.Unmarshal(message, &_struct)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	user, err := models.GetUser(ws)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	room, err := models.GetRoom(user.RoomCode)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return user, room, nil
 }

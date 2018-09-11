@@ -1,9 +1,12 @@
 package models
 
-import "math/rand"
+import (
+	"math/rand"
+	"sort"
+)
 
 const (
-	CardColerNone  = iota
+	CardColorNone = iota
 	CardColorRed
 	CardColorBlue
 	CardColorGreen
@@ -12,7 +15,7 @@ const (
 )
 
 const (
-	CardTypeNone    = iota
+	CardTypeNone = iota
 	CardTypeSparrow
 	CardTypeDog
 	CardTypeDragon
@@ -26,6 +29,8 @@ const (
 	TotalCardCount  = 56
 )
 
+const BoomFourCard = 4
+
 type Card struct {
 	Number   int
 	Color    int
@@ -34,23 +39,23 @@ type Card struct {
 
 func NewCardDeck() []*Card {
 	var newDeck []*Card
-	for cType := 0; cType < CardTypeCount; cType++ {
-		switch cType {
+	for cardType := 0; cardType < CardTypeCount; cardType++ {
+		switch cardType {
 		case CardTypeNone:
 			for color := CardColorRed; color < CardColorCount; color++ {
 				for num := StartCardNumber; num < EndCardNumber+1; num++ {
 					newDeck = append(newDeck, &Card{
 						Number:   num,
 						Color:    color,
-						CardType: cType,
+						CardType: cardType,
 					})
 				}
 			}
 		default:
 			newDeck = append(newDeck, &Card{
 				Number:   0,
-				Color:    CardColerNone,
-				CardType: cType,
+				Color:    CardColorNone,
+				CardType: cardType,
 			})
 		}
 	}
@@ -62,6 +67,45 @@ func NewCardDeck() []*Card {
 
 func shuffleCardDeck(deck []*Card) {
 	for key := range deck {
-		deck[rand.Intn(TotalCardCount)], deck[key] = deck[key], deck[rand.Intn(TotalCardCount)]
+		randNum := rand.Intn(TotalCardCount)
+		deck[randNum], deck[key] = deck[key], deck[randNum]
 	}
+}
+
+func IsBoom(cards []Card) bool {
+	baseCard := cards[0]
+	if baseCard.CardType != CardTypeNone {
+		return false
+	}
+
+	switch {
+	case len(cards) == BoomFourCard:
+		for _, card := range cards {
+			if baseCard.Number != card.Number {
+				return false
+			}
+		}
+	case len(cards) > BoomFourCard:
+		var numbers []int
+		for _, card := range cards {
+			if baseCard.Color != card.Color {
+				return false
+			}
+
+			numbers = append(numbers, card.Number)
+
+			sort.Ints(numbers)
+
+			for i := 0; i < len(numbers)-1; i++ {
+				if numbers[i+1]-numbers[i] != 1 {
+					return false
+				}
+			}
+		}
+
+	default:
+		return false
+	}
+
+	return true
 }
