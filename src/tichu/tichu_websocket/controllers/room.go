@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"tichu/tichu_websocket/protocol"
 	"encoding/json"
-	"tichu/tichu_websocket/models"
-	"github.com/gorilla/websocket"
 	"github.com/Sirupsen/logrus"
+	"github.com/gorilla/websocket"
+	"tichu/tichu_websocket/models"
+	"tichu/tichu_websocket/protocol"
 )
 
 func CreateRoom(ws *websocket.Conn, message []byte) {
@@ -79,6 +79,7 @@ func JoinRoom(ws *websocket.Conn, message []byte) {
 
 func RoomInit(room *models.Room) {
 	room.CardDeck = models.NewCardDeck()
+	room.State = models.StateCallLargeTichu
 
 	DistributeCard(room, 8)
 }

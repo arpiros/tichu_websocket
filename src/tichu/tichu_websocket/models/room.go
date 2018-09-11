@@ -17,6 +17,13 @@ const (
 	CallTichuLarge
 )
 
+const (
+	StateRoomInit = iota
+	StateCallLargeTichu
+	StateChangeCard
+	StatePlaying
+)
+
 //TODO Mutex 처리
 var RoomList = make(map[string]*Room)
 
@@ -31,6 +38,8 @@ type Room struct {
 	CallTichu map[int]int
 
 	CurrentActivePlayer int
+
+	State int
 }
 
 type Player struct {
@@ -66,6 +75,7 @@ func CreateRoom(ws *websocket.Conn) *Room {
 				Teams:               make([]*Team, TeamCount),
 				CallTichu:           make(map[int]int),
 				CurrentActivePlayer: -1, // 아직 아무도 게임 진행중이지 않음
+				State:               StateRoomInit,
 			}
 
 			for key := range room.Teams {
