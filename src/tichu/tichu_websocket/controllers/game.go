@@ -108,7 +108,7 @@ func CallTichu(ws *websocket.Conn, message []byte) {
 		return
 	}
 
-	room.CallTichu[player.Index] = models.CallTichuSmail
+	room.CallTichu[player.Index] = models.CallTichuSmall
 
 	for client := range room.Clients {
 		client.WriteJSON(&protocol.CallTichuResp{

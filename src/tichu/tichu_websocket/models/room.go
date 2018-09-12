@@ -13,7 +13,7 @@ const TeamCount = 2
 
 const (
 	CallTichuNone = iota
-	CallTichuSmail
+	CallTichuSmall
 	CallTichuLarge
 )
 
