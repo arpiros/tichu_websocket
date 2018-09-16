@@ -1,11 +1,23 @@
 package protocol
 
+// Request
 const (
-	CreateRoom = iota
-	JoinRoom
-	CallLargeTichu
-	ChangeCard
-	CallTichu
-	Boom
-	MoveTurn
+	ReqCreateRoom = iota
+	ReqJoinRoom
+	ReqCallLargeTichu
+	ReqChangeCard
+	ReqCallTichu
+	ReqBoom
+	ReqMoveTurn
+)
+
+// Response
+const (
+	RespCreateRoom = iota
+	RespJoinRoom
+	RespRoomInit
+	RespCallLargeTichu
+	RespDistributeAllCard
+	RespStartGame
+	RespCallTichu
 )

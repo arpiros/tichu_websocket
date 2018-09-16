@@ -31,7 +31,7 @@ func TestSortArray(t *testing.T) {
 func TestMarshalJson(t *testing.T) {
 	req := protocol.ChangeCardReq{
 		RequestBase: protocol.RequestBase{
-			ProtocolType: protocol.ChangeCard,
+			RequestType: protocol.ReqChangeCard,
 		},
 		Change: map[int]int{
 			1: 0,

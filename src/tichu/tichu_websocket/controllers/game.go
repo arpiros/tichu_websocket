@@ -32,10 +32,12 @@ func CallLargeTichu(ws *websocket.Conn, message []byte) {
 	for client, player := range room.Clients {
 		if len(room.CallTichu) == models.RoomMemberLimit {
 			client.WriteJSON(&protocol.DistributeAllCardResp{
-				Player: player,
+				BaseResp: protocol.NewBaseResp(protocol.RespDistributeAllCard),
+				Player:   player,
 			})
 		} else {
 			client.WriteJSON(&protocol.CallLargeTichuResp{
+				BaseResp:  protocol.NewBaseResp(protocol.RespCallLargeTichu),
 				CallTichu: room.CallTichu,
 			})
 		}
@@ -87,6 +89,7 @@ func ChangeCard(ws *websocket.Conn, message []byte) {
 		room.State = models.StatePlaying
 		for client, player := range room.Clients {
 			client.WriteJSON(&protocol.StartGameResp{
+				BaseResp:            protocol.NewBaseResp(protocol.RespStartGame),
 				Player:              player,
 				CurrentActivePlayer: room.CurrentActivePlayer,
 			})
@@ -112,6 +115,7 @@ func CallTichu(ws *websocket.Conn, message []byte) {
 
 	for client := range room.Clients {
 		client.WriteJSON(&protocol.CallTichuResp{
+			BaseResp:  protocol.NewBaseResp(protocol.RespCallTichu),
 			CallTichu: room.CallTichu,
 		})
 	}

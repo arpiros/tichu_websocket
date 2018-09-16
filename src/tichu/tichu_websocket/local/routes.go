@@ -53,28 +53,28 @@ func PreProtocolProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []byte) {
-	switch base.ProtocolType {
-	case protocol.CreateRoom:
+	switch base.RequestType {
+	case protocol.ReqCreateRoom:
 		controllers.CreateRoom(ws, message)
-	case protocol.JoinRoom:
+	case protocol.ReqJoinRoom:
 		controllers.JoinRoom(ws, message)
-	case protocol.CallLargeTichu:
+	case protocol.ReqCallLargeTichu:
 		controllers.CallLargeTichu(ws, message)
-	case protocol.ChangeCard:
+	case protocol.ReqChangeCard:
 		controllers.ChangeCard(ws, message)
-	case protocol.CallTichu:
+	case protocol.ReqCallTichu:
 		controllers.CallTichu(ws, message)
-	case protocol.MoveTurn:
+	case protocol.ReqMoveTurn:
 		controllers.MoveTurn(ws, message)
 	default:
-		logrus.Warnf("Not Found Protocol : %d", base.ProtocolType)
+		logrus.Warnf("Not Found Protocol : %d", base.RequestType)
 	}
 }
 
 func LogOut(ws *websocket.Conn) {
 	user, err := models.GetUser(ws)
 	if err != nil {
-
+		return
 	}
 
 	models.LeaveRoom(ws, user.RoomCode)

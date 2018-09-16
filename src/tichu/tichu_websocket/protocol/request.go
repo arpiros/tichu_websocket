@@ -1,7 +1,7 @@
 package protocol
 
 type RequestBase struct {
-	ProtocolType int `json:"pt"`
+	RequestType int `json:"req_t"`
 }
 
 type CreateRoomReq struct {

@@ -34,6 +34,7 @@ func CreateRoom(ws *websocket.Conn, message []byte) {
 	user.State = models.UserState_InRoom
 
 	ws.WriteJSON(&protocol.CreateRoomResp{
+		BaseResp: protocol.NewBaseResp(protocol.RespCreateRoom),
 		RoomCode: room.RoomCode,
 	})
 }
@@ -66,14 +67,18 @@ func JoinRoom(ws *websocket.Conn, message []byte) {
 		RoomInit(room)
 		for client, player := range room.Clients {
 			client.WriteJSON(&protocol.RoomInitResp{
-				Player: player,
-				Team:   room.Teams[player.TeamNumber],
+				BaseResp: protocol.NewBaseResp(protocol.RespRoomInit),
+				Player:   player,
+				Team:     room.Teams[player.TeamNumber],
 			})
 		}
 	} else {
-		ws.WriteJSON(&protocol.JoinRoomResp{
-			UserCount: len(room.Players),
-		})
+		for client := range room.Clients {
+			client.WriteJSON(&protocol.JoinRoomResp{
+				BaseResp:  protocol.NewBaseResp(protocol.RespJoinRoom),
+				UserCount: len(room.Players),
+			})
+		}
 	}
 }
 
