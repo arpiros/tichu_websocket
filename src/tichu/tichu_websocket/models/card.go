@@ -6,20 +6,19 @@ import (
 )
 
 const (
-	CardColorNone = iota
-	CardColorRed
-	CardColorBlue
+	CardColorRed = iota
 	CardColorGreen
 	CardColorBlock
-	CardColorCount
+	CardColorBlue
+	CardColorNone
 )
 
 const (
 	CardTypeNone = iota
-	CardTypeSparrow
-	CardTypeDog
-	CardTypeDragon
+	CardTypeMahjong
 	CardTypePhoenix
+	CardTypeDrache
+	CardTypeDashund
 	CardTypeCount
 )
 
@@ -42,7 +41,7 @@ func NewCardDeck() []*Card {
 	for cardType := 0; cardType < CardTypeCount; cardType++ {
 		switch cardType {
 		case CardTypeNone:
-			for color := CardColorRed; color < CardColorCount; color++ {
+			for color := CardColorRed; color < CardColorNone; color++ {
 				for num := StartCardNumber; num < EndCardNumber+1; num++ {
 					newDeck = append(newDeck, &Card{
 						Number:   num,

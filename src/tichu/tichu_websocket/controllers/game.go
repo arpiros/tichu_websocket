@@ -77,7 +77,7 @@ func ChangeCard(ws *websocket.Conn, message []byte) {
 
 			if room.CurrentActivePlayer < 0 {
 				for _, card := range player.CardList {
-					if card.CardType == models.CardTypeSparrow {
+					if card.CardType == models.CardTypeMahjong {
 						player.IsMyTurn = true
 						room.CurrentActivePlayer = player.Index
 						break
