@@ -20,7 +20,7 @@ func CallLargeTichu(ws *websocket.Conn, message []byte) {
 	player := room.Clients[ws]
 	room.CallTichu[player.Index] = models.CallTichuNone
 
-	if req.IsCall {
+	if req.IsCall == 1 {
 		room.CallTichu[player.Index] = models.CallTichuLarge
 	}
 

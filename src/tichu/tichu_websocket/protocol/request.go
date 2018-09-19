@@ -17,7 +17,7 @@ type JoinRoomReq struct {
 type CallLargeTichuReq struct {
 	RequestBase
 
-	IsCall bool
+	IsCall int
 }
 
 type ChangeCardReq struct {
