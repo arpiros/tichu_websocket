@@ -32,8 +32,9 @@ func CallLargeTichu(ws *websocket.Conn, message []byte) {
 	for client, player := range room.Clients {
 		if len(room.CallTichu) == models.RoomMemberLimit {
 			client.WriteJSON(&protocol.DistributeAllCardResp{
-				BaseResp: protocol.NewBaseResp(protocol.RespDistributeAllCard),
-				Player:   player,
+				BaseResp:  protocol.NewBaseResp(protocol.RespDistributeAllCard),
+				Player:    player,
+				CallTichu: room.CallTichu,
 			})
 		} else {
 			client.WriteJSON(&protocol.CallLargeTichuResp{

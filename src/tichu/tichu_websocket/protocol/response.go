@@ -40,7 +40,8 @@ type CallLargeTichuResp struct {
 type DistributeAllCardResp struct {
 	BaseResp
 
-	Player *models.Player
+	Player    *models.Player
+	CallTichu map[int]int
 }
 
 type StartGameResp struct {
