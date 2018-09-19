@@ -23,8 +23,8 @@ const (
 )
 
 const (
-	StartCardNumber = 1
-	EndCardNumber   = 13
+	StartCardNumber = 2
+	EndCardNumber   = 14
 	TotalCardCount  = 56
 )
 
