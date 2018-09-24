@@ -24,6 +24,15 @@ const (
 	StatePlaying
 )
 
+const (
+	SubmitClassSingle = iota
+	SubmitClassPair
+	SubmitClassTriple
+	SubmitClassStrait
+	SubmitClassFullHouse
+	SubmitClassStraitPair
+)
+
 //TODO Mutex 처리
 var RoomList = make(map[string]*Room)
 
@@ -33,23 +42,75 @@ type Room struct {
 	Clients  map[*websocket.Conn]*Player `json:"-"`
 	Players  []*Player
 	Teams    []*Team
-	CardDeck []*Card `json:"-"`
+	CardDeck CardList `json:"-"`
 
 	CallTichu map[int]int
 
 	CurrentActivePlayer int
 
 	State int
+
+	Submits []Submit
+}
+
+type Submit struct {
+	PlayerIndex int
+	Class       int
+	Cards       CardList
+}
+
+func (r *Room) CanSubmitCard(cards CardList) bool {
+	if len(r.Submits) == 0 {
+		return true
+	}
+
+	if IsBoom(cards) {
+		return true
+	}
+
+	lastSubmit := r.Submits[len(r.Submits)-1]
+	switch lastSubmit.Class {
+	case SubmitClassSingle:
+		if !IsSingle(cards) {
+			return false
+		}
+	case SubmitClassPair:
+		if !IsPair(cards) {
+			return false
+		}
+	case SubmitClassTriple:
+		if !IsTriple(cards) {
+			return false
+		}
+	case SubmitClassFullHouse:
+		if !IsFullHouse(cards) {
+			return false
+		}
+		//case SubmitClassStrait:
+		//	if !IsStrait(cards) {
+		//		return false
+		//	}
+		//case SubmitClassStraitPair:
+		//	if !IsStraitPair(cards) {
+		//		return false
+		//	}
+	}
+
+	if GetLargestNumber(cards) <= GetLargestNumber(lastSubmit.Cards) {
+		return false
+	}
+
+	return true
 }
 
 type Player struct {
 	Index      int
 	TeamNumber int
-	CardList   []*Card
+	CardList   CardList
 	IsConnect  bool
 	IsMyTurn   bool
 
-	GainCard []*Card `json:"-"`
+	GainCard CardList `json:"-"`
 }
 
 type Team struct {

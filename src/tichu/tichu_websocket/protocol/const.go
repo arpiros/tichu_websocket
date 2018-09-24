@@ -7,6 +7,7 @@ const (
 	ReqCallLargeTichu
 	ReqChangeCard
 	ReqCallTichu
+	ReqSubmitCard
 	ReqBoom
 	ReqMoveTurn
 )

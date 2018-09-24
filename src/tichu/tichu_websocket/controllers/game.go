@@ -133,9 +133,9 @@ func UseBoom(ws *websocket.Conn, message []byte) {
 
 	player := room.Clients[ws]
 
-	var cards []models.Card
+	var cards models.CardList
 	for _, value := range req.Cards {
-		cards = append(cards, *player.CardList[value])
+		cards = append(cards, player.CardList[value])
 	}
 
 	if !models.IsBoom(cards) {
@@ -144,6 +144,31 @@ func UseBoom(ws *websocket.Conn, message []byte) {
 	}
 
 	// TODO send boom result
+}
+
+func SubmitCard(ws *websocket.Conn, message []byte) {
+	var req protocol.SubmitCardReq
+	_, room, err := controllerInit(ws, message, &req)
+	if err != nil {
+		logrus.Println("SubmitCard controllerInit Error : ", err)
+		models.DelUser(ws)
+		return
+	}
+
+	// isMyturn check
+	player := room.Clients[ws]
+	if !player.IsMyTurn {
+		// TODO error
+		return
+	}
+
+	//preSubmitted card check
+
+	//change presubmitted card & remove submit card
+
+	// change turn
+
+	// boardcast current room data
 }
 
 func MoveTurn(ws *websocket.Conn, message []byte) {

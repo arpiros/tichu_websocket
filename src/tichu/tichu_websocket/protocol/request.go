@@ -36,6 +36,10 @@ type UseBoomReq struct {
 	Cards []int
 }
 
+type SubmitCardReq struct {
+	Cards []int
+}
+
 type MoveTurnReq struct {
 	RequestBase
 

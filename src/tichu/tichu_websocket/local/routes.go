@@ -64,6 +64,8 @@ func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []by
 		controllers.ChangeCard(ws, message)
 	case protocol.ReqCallTichu:
 		controllers.CallTichu(ws, message)
+	case protocol.ReqSubmitCard:
+		controllers.SubmitCard(ws, message)
 	case protocol.ReqMoveTurn:
 		controllers.MoveTurn(ws, message)
 	default:

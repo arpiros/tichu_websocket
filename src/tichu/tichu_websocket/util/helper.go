@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"time"
 )
+
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const (
 	letterIdxBits = 6                    // 6 bits to represent a letter index
@@ -29,4 +30,8 @@ func GenerateRandomString(n int) string {
 	}
 
 	return string(b)
+}
+
+func RandomRange(min, max int) int {
+	return int(rand.Int31n(int32(max-min+1))) + min
 }
