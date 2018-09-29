@@ -91,7 +91,7 @@ func ChangeCard(ws *websocket.Conn, message []byte) {
 		for client, player := range room.Clients {
 			client.WriteJSON(&protocol.StartGameResp{
 				BaseResp:            protocol.NewBaseResp(protocol.RespStartGame),
-				Player:              player,
+				GainCard:            player.GainCard,
 				CurrentActivePlayer: room.CurrentActivePlayer,
 			})
 		}

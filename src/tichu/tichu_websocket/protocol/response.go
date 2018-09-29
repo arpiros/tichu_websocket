@@ -47,7 +47,7 @@ type DistributeAllCardResp struct {
 type StartGameResp struct {
 	BaseResp
 
-	Player              *models.Player
+	GainCard            models.CardList
 	CurrentActivePlayer int
 }
 
