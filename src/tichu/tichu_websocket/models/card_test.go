@@ -159,12 +159,11 @@ func TestIsTriple(t *testing.T) {
 	}
 }
 
-
 func TestIsStraitPair(t *testing.T) {
 	try := 0
 	for {
 		deck := NewCardDeck()
-		cardCount := 4
+		cardCount := 6
 
 		var cards CardList
 		for i := 0; i < cardCount; i++ {
@@ -178,7 +177,7 @@ func TestIsStraitPair(t *testing.T) {
 			}
 
 			println("try : ", try)
-			return
+			//return
 		}
 
 		try++

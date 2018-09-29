@@ -56,6 +56,12 @@ func NewCardDeck() CardList {
 					})
 				}
 			}
+		case CardTypeMahjong:
+			newDeck = append(newDeck, &Card{
+				Number:   1,
+				Color:    CardTypeMahjong,
+				CardType: cardType,
+			})
 		default:
 			newDeck = append(newDeck, &Card{
 				Number:   0,
@@ -199,15 +205,31 @@ func IsFullHouse(cards CardList) bool {
 	return true
 }
 
-
 func IsStrait(cards CardList) bool {
 	if len(cards) < 5 {
 		return false
 	}
 
 	sort.Sort(cards)
-	for i := 0; i < len(cards)-1; i++ {
+	hasPhoenix, i := false, 0
+
+	if cards[0].Number == 0 {
+		if cards[0].CardType == CardTypePhoenix {
+			hasPhoenix = true
+			i = 1
+		} else {
+			// can't contains strait CardTypeDrache, CardTypeDashund
+			return false
+		}
+	}
+
+	for ; i < len(cards)-1; i++ {
 		if cards[i+1].Number-cards[i].Number != 1 {
+			if cards[i+1].Number-cards[i].Number == 2 && hasPhoenix {
+				hasPhoenix = false
+				continue
+			}
+
 			return false
 		}
 	}
@@ -222,11 +244,21 @@ func IsStraitPair(cards CardList) bool {
 
 	cardCounter := make(map[int]int)
 	var numbers []int
+	//hasPhoenix := false
 	for _, v := range cards {
+		if v.Number == 0 {
+			if v.CardType != CardTypePhoenix {
+				return false
+			}
+			continue
+		}
+
 		cardCounter[v.Number]++
-		if cardCounter[v.Number] == 2 {
+		if cardCounter[v.Number] == 1 {
 			numbers = append(numbers, v.Number)
-		} else if cardCounter[v.Number] > 2 {
+		}
+
+		if cardCounter[v.Number] > 2 {
 			return false
 		}
 	}
