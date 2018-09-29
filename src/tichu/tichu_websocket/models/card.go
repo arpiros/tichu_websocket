@@ -199,48 +199,48 @@ func IsFullHouse(cards CardList) bool {
 	return true
 }
 
-//
-//func IsStrait(cards CardList) bool {
-//	if len(cards) < 5 {
-//		return false
-//	}
-//
-//	sort.Sort(cards)
-//	for i := 0; i < len(cards)-1; i++ {
-//		if cards[i+1].Number-cards[i].Number != 1 {
-//			return false
-//		}
-//	}
-//
-//	return true
-//}
-//
-//func IsStraitPair(cards CardList) bool {
-//	if len(cards) < 4 && len(cards)%2 != 0 {
-//		return false
-//	}
-//
-//	cardCounter := make(map[int]int)
-//	var numbers []int
-//	for _, v := range cards {
-//		cardCounter[v.Number]++
-//		if cardCounter[v.Number] == 2 {
-//			numbers = append(numbers, v.Number)
-//		} else if cardCounter[v.Number] > 2 {
-//			return false
-//		}
-//	}
-//
-//	if len(numbers)*2 != len(cards) {
-//		return false
-//	}
-//
-//	sort.Ints(numbers)
-//	for i := 0; i < len(numbers)-1; i++ {
-//		if numbers[i+1]-numbers[i] != 1 {
-//			return false
-//		}
-//	}
-//
-//	return true
-//}
+
+func IsStrait(cards CardList) bool {
+	if len(cards) < 5 {
+		return false
+	}
+
+	sort.Sort(cards)
+	for i := 0; i < len(cards)-1; i++ {
+		if cards[i+1].Number-cards[i].Number != 1 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func IsStraitPair(cards CardList) bool {
+	if len(cards) < 4 && len(cards)%2 != 0 {
+		return false
+	}
+
+	cardCounter := make(map[int]int)
+	var numbers []int
+	for _, v := range cards {
+		cardCounter[v.Number]++
+		if cardCounter[v.Number] == 2 {
+			numbers = append(numbers, v.Number)
+		} else if cardCounter[v.Number] > 2 {
+			return false
+		}
+	}
+
+	if len(numbers)*2 != len(cards) {
+		return false
+	}
+
+	sort.Ints(numbers)
+	for i := 0; i < len(numbers)-1; i++ {
+		if numbers[i+1]-numbers[i] != 1 {
+			return false
+		}
+	}
+
+	return true
+}

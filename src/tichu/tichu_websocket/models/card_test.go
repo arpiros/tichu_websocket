@@ -159,53 +159,53 @@ func TestIsTriple(t *testing.T) {
 	}
 }
 
-//
-//func TestIsStraitPair(t *testing.T) {
-//	try := 0
-//	for {
-//		deck := NewCardDeck()
-//		cardCount := 4
-//
-//		var cards CardList
-//		for i := 0; i < cardCount; i++ {
-//			cards = append(cards, deck[i])
-//		}
-//
-//		if IsStraitPair(cards) {
-//			sort.Sort(cards)
-//			for key, value := range cards {
-//				println(key, value.CardType, value.Color, value.Number)
-//			}
-//
-//			println("try : ", try)
-//			return
-//		}
-//
-//		try++
-//	}
-//}
-//
-//func TestIsFullHouse(t *testing.T) {
-//	try := 0
-//	for {
-//		deck := NewCardDeck()
-//		cardCount := 5
-//
-//		var cards CardList
-//		for i := 0; i < cardCount; i++ {
-//			cards = append(cards, deck[i])
-//		}
-//
-//		if IsFullHouse(cards) {
-//			sort.Sort(cards)
-//			for key, value := range cards {
-//				println(key, value.CardType, value.Color, value.Number)
-//			}
-//
-//			println("try : ", try)
-//			return
-//		}
-//
-//		try++
-//	}
-//}
+
+func TestIsStraitPair(t *testing.T) {
+	try := 0
+	for {
+		deck := NewCardDeck()
+		cardCount := 4
+
+		var cards CardList
+		for i := 0; i < cardCount; i++ {
+			cards = append(cards, deck[i])
+		}
+
+		if IsStraitPair(cards) {
+			sort.Sort(cards)
+			for key, value := range cards {
+				println(key, value.CardType, value.Color, value.Number)
+			}
+
+			println("try : ", try)
+			return
+		}
+
+		try++
+	}
+}
+
+func TestIsFullHouse(t *testing.T) {
+	try := 0
+	for {
+		deck := NewCardDeck()
+		cardCount := 5
+
+		var cards CardList
+		for i := 0; i < cardCount; i++ {
+			cards = append(cards, deck[i])
+		}
+
+		if IsFullHouse(cards) {
+			sort.Sort(cards)
+			for key, value := range cards {
+				println(key, value.CardType, value.Color, value.Number)
+			}
+
+			println("try : ", try)
+			return
+		}
+
+		try++
+	}
+}
