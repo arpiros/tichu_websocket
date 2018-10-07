@@ -53,13 +53,29 @@ type Room struct {
 	Submits []Submit
 }
 
+func (r *Room) MoveTurn() {
+	r.CurrentActivePlayer = (r.CurrentActivePlayer + 1) % 4
+	for i := 0; i < 4; i++ {
+		if len(r.Players[r.CurrentActivePlayer].CardList) == 0 {
+			r.CurrentActivePlayer = (r.CurrentActivePlayer + 1) % 4
+		} else {
+			r.Players[r.CurrentActivePlayer].IsMyTurn = true
+			break
+		}
+	}
+}
+
 type Submit struct {
 	PlayerIndex int
 	Class       int
 	Cards       CardList
+	LastNumber  int
 }
 
 func (r *Room) CanSubmitCard(cards CardList) bool {
+	//temp
+	return true
+
 	if len(r.Submits) == 0 {
 		return true
 	}
@@ -86,18 +102,14 @@ func (r *Room) CanSubmitCard(cards CardList) bool {
 		if !IsFullHouse(cards) {
 			return false
 		}
-		//case SubmitClassStrait:
-		//	if !IsStrait(cards) {
-		//		return false
-		//	}
-		//case SubmitClassStraitPair:
-		//	if !IsStraitPair(cards) {
-		//		return false
-		//	}
-	}
-
-	if GetLargestNumber(cards) <= GetLargestNumber(lastSubmit.Cards) {
-		return false
+	case SubmitClassStrait:
+		if !IsStrait(cards) {
+			return false
+		}
+	case SubmitClassStraitPair:
+		if !IsStraitPair(cards) {
+			return false
+		}
 	}
 
 	return true

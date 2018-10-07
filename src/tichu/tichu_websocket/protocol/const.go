@@ -21,4 +21,5 @@ const (
 	RespDistributeAllCard
 	RespStartGame
 	RespCallTichu
+	RespSubmitCard
 )

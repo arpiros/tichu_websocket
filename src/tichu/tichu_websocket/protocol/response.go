@@ -57,6 +57,13 @@ type CallTichuResp struct {
 	CallTichu map[int]int
 }
 
+type SubmitCardResp struct {
+	BaseResp
+
+	Player              *models.Player
+	CurrentActivePlayer int
+}
+
 type MoveTurnResp struct {
 	BaseResp
 

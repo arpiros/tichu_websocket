@@ -43,3 +43,12 @@ func TestMarshalJson(t *testing.T) {
 	bytes, _ := json.Marshal(req)
 	println(string(bytes))
 }
+
+func TestTurnChange(t *testing.T) {
+	value := 0
+	for i := 0; i < 10000; i++ {
+		value = (value + 1) % 4
+
+		println(value)
+	}
+}

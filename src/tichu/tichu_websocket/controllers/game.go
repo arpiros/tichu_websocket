@@ -122,6 +122,80 @@ func CallTichu(ws *websocket.Conn, message []byte) {
 	}
 }
 
+func SubmitCard(ws *websocket.Conn, message []byte) {
+	var req protocol.SubmitCardReq
+	_, room, err := controllerInit(ws, message, &req)
+	if err != nil {
+		logrus.Println("SubmitCard controllerInit Error : ", err)
+		models.DelUser(ws)
+		return
+	}
+
+	// isMyturn check
+	player := room.Clients[ws]
+	if !player.IsMyTurn {
+		// TODO error
+		return
+	}
+
+	var submitCards models.CardList
+	for _, cardIndex := range req.Cards {
+		submitCards = append(submitCards, player.CardList[cardIndex])
+	}
+
+	//preSubmitted card check
+	if room.CanSubmitCard(submitCards) {
+		//TODO error
+		return
+	}
+
+	//change presubmitted card & remove submit card
+	submit := models.Submit{
+		PlayerIndex: player.Index,
+		Class:       models.SubmitClassSingle,
+		Cards:       submitCards,
+		LastNumber:  1,
+	}
+
+	room.Submits = append(room.Submits, submit)
+
+	for _, cardIndex := range req.Cards {
+		player.CardList = append(player.CardList[:cardIndex], player.CardList[cardIndex+1:]...)
+	}
+
+	MoveNextTurn(room)
+
+	////check game end
+	//endPlayerCount := 0
+	//for _, p := range room.Players {
+	//	if len(p.CardList) == 0 {
+	//		endPlayerCount++
+	//	}
+	//}
+	//
+	//if endPlayerCount >= 3 {
+	//	// end game process
+	//
+	//} else {
+	//	MoveNextTurn(room)
+	//}
+}
+
+func MoveNextTurn(room *models.Room) {
+	room.MoveTurn()
+	for client, p := range room.Clients {
+		if p.Index == room.CurrentActivePlayer {
+			p.IsMyTurn = true
+		}
+
+		client.WriteJSON(&protocol.SubmitCardResp{
+			BaseResp:            protocol.NewBaseResp(protocol.RespSubmitCard),
+			Player:              p,
+			CurrentActivePlayer: room.CurrentActivePlayer,
+		})
+	}
+}
+
 func UseBoom(ws *websocket.Conn, message []byte) {
 	var req protocol.UseBoomReq
 	_, room, err := controllerInit(ws, message, &req)
@@ -144,31 +218,6 @@ func UseBoom(ws *websocket.Conn, message []byte) {
 	}
 
 	// TODO send boom result
-}
-
-func SubmitCard(ws *websocket.Conn, message []byte) {
-	var req protocol.SubmitCardReq
-	_, room, err := controllerInit(ws, message, &req)
-	if err != nil {
-		logrus.Println("SubmitCard controllerInit Error : ", err)
-		models.DelUser(ws)
-		return
-	}
-
-	// isMyturn check
-	player := room.Clients[ws]
-	if !player.IsMyTurn {
-		// TODO error
-		return
-	}
-
-	//preSubmitted card check
-
-	//change presubmitted card & remove submit card
-
-	// change turn
-
-	// boardcast current room data
 }
 
 func MoveTurn(ws *websocket.Conn, message []byte) {

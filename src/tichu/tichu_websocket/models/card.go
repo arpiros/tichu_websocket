@@ -62,6 +62,12 @@ func NewCardDeck() CardList {
 				Color:    CardTypeMahjong,
 				CardType: cardType,
 			})
+		case CardTypeDrache:
+			newDeck = append(newDeck, &Card{
+				Number:   99,
+				Color:    CardTypeMahjong,
+				CardType: cardType,
+			})
 		default:
 			newDeck = append(newDeck, &Card{
 				Number:   0,
