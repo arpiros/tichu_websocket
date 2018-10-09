@@ -48,7 +48,7 @@ type Room struct {
 
 	CurrentActivePlayer int
 
-	State int
+	//State int
 
 	Submits []Submit
 }
@@ -62,6 +62,18 @@ func (r *Room) MoveTurn() {
 			r.Players[r.CurrentActivePlayer].IsMyTurn = true
 			break
 		}
+	}
+}
+
+func (r *Room) NextGame() {
+	r.CardDeck = NewCardDeck()
+	r.Submits = nil
+	r.CallTichu = make(map[int]int)
+	for _, p := range r.Players {
+		p.GetScore = 0
+		p.GetCards = nil
+		p.CardList = nil
+		p.GainCard = nil
 	}
 }
 
@@ -123,6 +135,9 @@ type Player struct {
 	IsMyTurn   bool
 
 	GainCard CardList `json:"-"`
+
+	GetCards CardList `json:"-"`
+	GetScore int
 }
 
 type Team struct {
@@ -148,7 +163,6 @@ func CreateRoom(ws *websocket.Conn) *Room {
 				Teams:               make([]*Team, TeamCount),
 				CallTichu:           make(map[int]int),
 				CurrentActivePlayer: -1, // 아직 아무도 게임 진행중이지 않음
-				State:               StateRoomInit,
 			}
 
 			for key := range room.Teams {

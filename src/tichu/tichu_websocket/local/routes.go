@@ -68,6 +68,8 @@ func ProtocolProcess(base protocol.RequestBase, ws *websocket.Conn, message []by
 		controllers.SubmitCard(ws, message)
 	case protocol.ReqMoveTurn:
 		controllers.MoveTurn(ws, message)
+	case protocol.ReqTurnPass:
+		controllers.TurnPass(ws, message)
 	default:
 		logrus.Warnf("Not Found Protocol : %d", base.RequestType)
 	}

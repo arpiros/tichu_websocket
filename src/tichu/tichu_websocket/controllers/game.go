@@ -25,7 +25,6 @@ func CallLargeTichu(ws *websocket.Conn, message []byte) {
 	}
 
 	if len(room.CallTichu) == models.RoomMemberLimit {
-		room.State = models.StateChangeCard
 		DistributeCard(room, 6)
 	}
 
@@ -87,7 +86,6 @@ func ChangeCard(ws *websocket.Conn, message []byte) {
 			}
 		}
 
-		room.State = models.StatePlaying
 		for client, player := range room.Clients {
 			client.WriteJSON(&protocol.StartGameResp{
 				BaseResp:            protocol.NewBaseResp(protocol.RespStartGame),
@@ -164,36 +162,95 @@ func SubmitCard(ws *websocket.Conn, message []byte) {
 	}
 
 	MoveNextTurn(room)
-
-	////check game end
-	//endPlayerCount := 0
-	//for _, p := range room.Players {
-	//	if len(p.CardList) == 0 {
-	//		endPlayerCount++
-	//	}
-	//}
-	//
-	//if endPlayerCount >= 3 {
-	//	// end game process
-	//
-	//} else {
-	//	MoveNextTurn(room)
-	//}
 }
 
 func MoveNextTurn(room *models.Room) {
 	room.MoveTurn()
 	for client, p := range room.Clients {
-		if p.Index == room.CurrentActivePlayer {
-			p.IsMyTurn = true
-		}
-
 		client.WriteJSON(&protocol.SubmitCardResp{
 			BaseResp:            protocol.NewBaseResp(protocol.RespSubmitCard),
 			Player:              p,
 			CurrentActivePlayer: room.CurrentActivePlayer,
 		})
 	}
+}
+
+func TurnPass(ws *websocket.Conn, message []byte) {
+	var req protocol.PassTurnReq
+	_, room, err := controllerInit(ws, message, &req)
+	if err != nil {
+		logrus.Println("TurnPass controllerInit Error : ", err)
+		models.DelUser(ws)
+		return
+	}
+
+	player := room.Clients[ws]
+	if !player.IsMyTurn {
+		// TODO error
+		return
+	}
+
+	room.MoveTurn()
+
+	if room.Submits[len(room.Submits)-1].PlayerIndex == room.CurrentActivePlayer {
+		GetCard(room, player)
+		//end game
+		endPlayerCount := 0
+		for _, p := range room.Players {
+			if len(p.CardList) == 0 {
+				endPlayerCount++
+			}
+		}
+
+		if endPlayerCount >= 3 {
+			for _, p := range room.Players {
+				room.Teams[p.TeamNumber].TotalScore += p.GetScore
+			}
+
+			for _, t := range room.Teams {
+				if t.TotalScore >= 1000 {
+					//TODO End Game
+				}
+			}
+
+			room.NextGame()
+			DistributeCard(room, 6)
+			for client, p := range room.Clients {
+				client.WriteJSON(&protocol.NextGameResp{
+					BaseResp: protocol.NewBaseResp(protocol.RespNextGame),
+					Player:   p,
+				})
+			}
+		}
+	} else {
+		for client, p := range room.Clients {
+			client.WriteJSON(&protocol.TurnPassResp{
+				BaseResp:            protocol.NewBaseResp(protocol.RespTurnPass),
+				Player:              p,
+				CurrentActivePlayer: room.CurrentActivePlayer,
+			})
+		}
+	}
+}
+
+func GetCard(room *models.Room, player *models.Player) {
+	for _, submit := range room.Submits {
+		for _, card := range submit.Cards {
+			player.GetCards = append(player.GetCards, card)
+			switch card.CardType {
+			case models.CardTypeDrache:
+				player.GetScore += 25
+			case models.CardTypePhoenix:
+				player.GetScore -= 25
+			default:
+				if card.Number == 10 || card.Number == 5 {
+					player.GetScore += card.Number
+				}
+			}
+		}
+	}
+
+	room.Submits = nil
 }
 
 func UseBoom(ws *websocket.Conn, message []byte) {

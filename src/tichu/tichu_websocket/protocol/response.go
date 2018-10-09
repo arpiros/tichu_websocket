@@ -64,6 +64,19 @@ type SubmitCardResp struct {
 	CurrentActivePlayer int
 }
 
+type TurnPassResp struct {
+	BaseResp
+
+	Player              *models.Player
+	CurrentActivePlayer int
+}
+
+type NextGameResp struct {
+	BaseResp
+
+	Player *models.Player
+}
+
 type MoveTurnResp struct {
 	BaseResp
 

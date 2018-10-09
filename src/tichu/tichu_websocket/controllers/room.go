@@ -84,7 +84,6 @@ func JoinRoom(ws *websocket.Conn, message []byte) {
 
 func RoomInit(room *models.Room) {
 	room.CardDeck = models.NewCardDeck()
-	room.State = models.StateCallLargeTichu
 
 	DistributeCard(room, 8)
 }

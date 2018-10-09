@@ -8,6 +8,7 @@ const (
 	ReqChangeCard
 	ReqCallTichu
 	ReqSubmitCard
+	ReqTurnPass
 	ReqBoom
 	ReqMoveTurn
 )
@@ -22,4 +23,6 @@ const (
 	RespStartGame
 	RespCallTichu
 	RespSubmitCard
+	RespTurnPass
+	RespNextGame
 )
